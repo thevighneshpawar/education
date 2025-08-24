@@ -187,6 +187,38 @@ export default function TriangleAreaCarousel() {
         setIsDragging(null)
     }
 
+    useEffect(() => {
+        const handleGlobalMouseMove = (e) => {
+            if (isDragging) {
+                const svgElement = document.querySelector(".coordinate-svg")
+                if (svgElement) {
+                    const rect = svgElement.getBoundingClientRect()
+                    const x = e.clientX - rect.left
+                    const y = e.clientY - rect.top
+
+                    setCoordinates((prev) => ({
+                        ...prev,
+                        [isDragging]: { x: Math.max(60, Math.min(240, x)), y: Math.max(60, Math.min(190, y)) },
+                    }))
+                }
+            }
+        }
+
+        const handleGlobalMouseUp = () => {
+            setIsDragging(null)
+        }
+
+        if (isDragging) {
+            document.addEventListener("mousemove", handleGlobalMouseMove)
+            document.addEventListener("mouseup", handleGlobalMouseUp)
+        }
+
+        return () => {
+            document.removeEventListener("mousemove", handleGlobalMouseMove)
+            document.removeEventListener("mouseup", handleGlobalMouseUp)
+        }
+    }, [isDragging])
+
     const calculateCoordinateArea = () => {
         const { A, B, C } = coordinates
         // Convert SVG coordinates to mathematical coordinates
@@ -351,7 +383,7 @@ export default function TriangleAreaCarousel() {
 
             case 1: // Mini-quiz for basic formula
                 return (
-                    <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 h-full">
+                    <div className="grid px-20 py-10 lg:grid-cols-2 gap-6 lg:gap-8 h-full">
                         <div className="space-y-4 lg:space-y-6">
                             <div
                                 className={`bg-slate-800/60 backdrop-blur-sm rounded-xl p-4 lg:p-6 border border-slate-700/50 transform transition-all duration-700 ${animationStep >= 1 ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
@@ -380,15 +412,15 @@ export default function TriangleAreaCarousel() {
                                             key={option.value}
                                             onClick={() => handleQuizAnswer("basic1", option.value, "B")}
                                             className={`w-full p-3 text-left rounded-lg transition-all duration-300 ${quizAnswers["basic1"] === option.value
-                                                    ? showFeedback["basic1"]
-                                                        ? "bg-green-600 text-white"
-                                                        : "bg-red-600 text-white"
-                                                    : "bg-slate-700 hover:bg-slate-600"
+                                                ? showFeedback["basic1"]
+                                                    ? "bg-green-600 text-white"
+                                                    : "bg-red-600 text-white"
+                                                : "bg-slate-700/80 hover:bg-slate-600/80 text-gray-200 hover:text-white border border-slate-600/50"
                                                 }`}
                                             disabled={quizAnswers["basic1"]}
                                         >
                                             <div className="flex items-center justify-between">
-                                                {option.text}
+                                                <span className="font-medium">{option.text}</span>
                                                 {quizAnswers["basic1"] === option.value &&
                                                     (showFeedback["basic1"] ? (
                                                         <CheckCircle className="w-5 h-5 text-green-300" />
@@ -799,7 +831,7 @@ export default function TriangleAreaCarousel() {
                             </div>
 
                             <div
-                                className={`bg-slate-800 rounded-xl p-4 transform transition-all duration-700 delay-500 ${animationStep >= 3 ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"}`}
+                                className={`bg-slate-800 rounded-xl p-4 text-gray-300 transform transition-all duration-700 delay-500 ${animationStep >= 3 ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"}`}
                             >
                                 <h4 className="text-green-400 font-semibold mb-3">Current Coordinates:</h4>
                                 <div className="space-y-2 text-sm font-mono">
@@ -823,10 +855,10 @@ export default function TriangleAreaCarousel() {
                                     width="300"
                                     height="250"
                                     viewBox="0 0 300 250"
+                                    className="coordinate-svg border border-slate-600 rounded-lg bg-slate-800/50"
                                     onMouseMove={handleMouseMove}
                                     onMouseUp={handleMouseUp}
                                     onMouseLeave={handleMouseUp}
-                                    className="cursor-pointer"
                                 >
                                     {/* Grid */}
                                     <defs>
@@ -1014,13 +1046,13 @@ export default function TriangleAreaCarousel() {
                             </div>
 
                             <div
-                                className={`bg-slate-800 rounded-xl p-6 border border-blue-500/30 transform transition-all duration-700 delay-300 ${animationStep >= 2 ? "scale-100 opacity-100" : "scale-95 opacity-0"}`}
+                                className={`bg-slate-800 text-gray-200 rounded-xl p-6 border border-blue-500/30 transform transition-all duration-700 delay-300 ${animationStep >= 2 ? "scale-100 opacity-100" : "scale-95 opacity-0"}`}
                             >
                                 <h4 className="text-blue-400 font-semibold mb-4">Question 1:</h4>
                                 <p className="text-gray-300 mb-4">
                                     A triangle has a base of 10 units and height of 6 units. What is its area?
                                 </p>
-                                <div className="space-y-2">
+                                <div className="space-y-2 font-semibold">
                                     <button className="w-full p-3 text-left bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors">
                                         A) 60 square units
                                     </button>
@@ -1034,7 +1066,7 @@ export default function TriangleAreaCarousel() {
                             </div>
 
                             <div
-                                className={`bg-slate-800 rounded-xl p-6 border border-blue-500/30 transform transition-all duration-700 delay-500 ${animationStep >= 3 ? "scale-100 opacity-100" : "scale-95 opacity-0"}`}
+                                className={`bg-slate-800 rounded-xl text-gray-200 p-6 border border-blue-500/30 transform transition-all duration-700 delay-500 ${animationStep >= 3 ? "scale-100 opacity-100" : "scale-95 opacity-0"}`}
                             >
                                 <h4 className="text-blue-400 font-semibold mb-4">Question 2:</h4>
                                 <p className="text-gray-300 mb-4">Which formula would you use for a triangle with sides 3, 4, and 5?</p>
@@ -1194,15 +1226,15 @@ export default function TriangleAreaCarousel() {
                                             key={option.value}
                                             onClick={() => handleQuizAnswer("final1", option.value, "B")}
                                             className={`w-full p-3 text-left rounded-lg transition-all duration-300 ${quizAnswers["final1"] === option.value
-                                                    ? showFeedback["final1"]
-                                                        ? "bg-green-600 text-white"
-                                                        : "bg-red-600 text-white"
-                                                    : "bg-slate-700 hover:bg-slate-600"
+                                                ? showFeedback["final1"]
+                                                    ? "bg-green-600 text-white"
+                                                    : "bg-red-600 text-white"
+                                                : "bg-slate-700/80 hover:bg-slate-600/80 text-gray-200 hover:text-white border border-slate-600/50"
                                                 }`}
                                             disabled={quizAnswers["final1"]}
                                         >
                                             <div className="flex items-center justify-between">
-                                                {option.text}
+                                                <span className="font-medium">{option.text}</span>
                                                 {quizAnswers["final1"] === option.value &&
                                                     (showFeedback["final1"] ? (
                                                         <CheckCircle className="w-5 h-5 text-green-300" />
@@ -1238,10 +1270,10 @@ export default function TriangleAreaCarousel() {
                                 </div>
 
                                 <div
-                                    className={`bg-slate-800 rounded-xl p-6 border border-orange-500/30 transform transition-all duration-700 delay-700 ${animationStep >= 3 ? "scale-100 opacity-100" : "scale-95 opacity-0"}`}
+                                    className={`bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-orange-500/30 transform transition-all duration-700 delay-700 ${animationStep >= 3 ? "scale-100 opacity-100" : "scale-95 opacity-0"}`}
                                 >
                                     <h4 className="text-orange-400 font-semibold mb-3">Mastery Checklist:</h4>
-                                    <div className="space-y-2 text-sm text-gray-300">
+                                    <div className="space-y-2 text-sm text-gray-200">
                                         <div className="flex items-center gap-2">
                                             <CheckCircle className="w-4 h-4 text-green-400" />
                                             Basic Formula (½bh)
@@ -1275,210 +1307,141 @@ export default function TriangleAreaCarousel() {
     }
 
     return (
-        <div className="h-screen w-screen bg-slate-900 text-white overflow-hidden flex flex-col">
-            <div className="absolute top-4 left-4 z-20">
-                <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg px-3 py-1 border border-slate-700/50">
-                    <h1 className="text-xs font-medium text-gray-300">Triangle Area Learning</h1>
-                </div>
-            </div>
+        <div className="relative w-full h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+            {/* Custom Scrollbar Styles */}
+            <style jsx global>{`
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 8px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: rgba(30, 41, 59, 0.3);
+                    border-radius: 4px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: rgba(148, 163, 184, 0.5);
+                    border-radius: 4px;
+                    transition: background 0.2s;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: rgba(148, 163, 184, 0.7);
+                }
+            `}</style>
 
-            <div className="relative flex-1 w-full h-full">
-                {/* Left Navigation Button */}
-                <button
-                    onClick={prevSlide}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 p-2 lg:p-3 bg-slate-800/90 hover:bg-slate-700/90 rounded-full border border-slate-600 transition-all duration-300 hover:scale-110 backdrop-blur-sm"
-                >
-                    <ChevronLeft className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
-                </button>
+            {/* Left Navigation Button */}
+            <button
+                onClick={prevSlide}
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10 p-2 bg-slate-800/90 hover:bg-slate-700/90 rounded-full border border-slate-600 transition-all duration-300 hover:scale-110 backdrop-blur-sm"
+            >
+                <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
 
-                {/* Right Navigation Button */}
-                <button
-                    onClick={nextSlide}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 p-2 lg:p-3 bg-slate-800/90 hover:bg-slate-700/90 rounded-full border border-slate-600 transition-all duration-300 hover:scale-110 backdrop-blur-sm"
-                >
-                    <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
-                </button>
+            {/* Right Navigation Button */}
+            <button
+                onClick={nextSlide}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 z-10 p-2 bg-slate-800/90 hover:bg-slate-700/90 rounded-full border border-slate-600 transition-all duration-300 hover:scale-110 backdrop-blur-sm"
+            >
+                <ChevronRight className="w-5 h-5 text-white" />
+            </button>
 
-                <div className="w-full h-full p-4 lg:p-8 pt-16 pb-20">
-                    <div className="max-w-7xl mx-auto h-full flex flex-col">
-                        <div className="text-center mb-4 lg:mb-6 flex-shrink-0">
-                            <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-4 lg:p-6 border border-slate-700/50">
-                                <div
-                                    className={`inline-flex items-center gap-2 px-3 py-1 lg:px-4 lg:py-2 rounded-full border mb-2 lg:mb-3 transition-all duration-500 ${slides[currentSlide].color === "purple"
-                                            ? "bg-purple-500/20 border-purple-500/30"
-                                            : slides[currentSlide].color === "blue"
-                                                ? "bg-blue-500/20 border-blue-500/30"
-                                                : slides[currentSlide].color === "green"
-                                                    ? "bg-green-500/20 border-green-500/30"
-                                                    : slides[currentSlide].color === "yellow"
-                                                        ? "bg-yellow-500/20 border-yellow-500/30"
-                                                        : "bg-orange-500/20 border-orange-500/30"
+            {/* Main Content */}
+            <div className="w-full h-full p-3 lg:p-6 pt-12 pb-16">
+                <div className="max-w-7xl mx-auto h-full flex flex-col">
+                    <div className="flex items-center justify-between mb-4 flex-shrink-0">
+                        <div className="flex items-center gap-4">
+                            <div
+                                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-500 ${slides[currentSlide].color === "purple"
+                                    ? "bg-purple-500/20 border-purple-500/30"
+                                    : slides[currentSlide].color === "blue"
+                                        ? "bg-blue-500/20 border-blue-500/30"
+                                        : slides[currentSlide].color === "green"
+                                            ? "bg-green-500/20 border-green-500/30"
+                                            : slides[currentSlide].color === "yellow"
+                                                ? "bg-yellow-500/20 border-yellow-500/30"
+                                                : "bg-orange-500/20 border-orange-500/30"
+                                    }`}
+                            >
+                                {React.createElement(slides[currentSlide].icon, {
+                                    className: `w-4 h-4 ${slides[currentSlide].color === "purple"
+                                        ? "text-purple-400"
+                                        : slides[currentSlide].color === "blue"
+                                            ? "text-blue-400"
+                                            : slides[currentSlide].color === "green"
+                                                ? "text-green-400"
+                                                : slides[currentSlide].color === "yellow"
+                                                    ? "text-yellow-400"
+                                                    : "text-orange-400"
+                                        }`,
+                                })}
+                                <span
+                                    className={`font-semibold text-sm ${slides[currentSlide].color === "purple"
+                                        ? "text-purple-400"
+                                        : slides[currentSlide].color === "blue"
+                                            ? "text-blue-400"
+                                            : slides[currentSlide].color === "green"
+                                                ? "text-green-400"
+                                                : slides[currentSlide].color === "yellow"
+                                                    ? "text-yellow-400"
+                                                    : "text-orange-400"
                                         }`}
                                 >
-                                    {React.createElement(slides[currentSlide].icon, {
-                                        className: `w-4 h-4 lg:w-5 lg:h-5 ${slides[currentSlide].color === "purple"
-                                                ? "text-purple-400"
-                                                : slides[currentSlide].color === "blue"
-                                                    ? "text-blue-400"
-                                                    : slides[currentSlide].color === "green"
-                                                        ? "text-green-400"
-                                                        : slides[currentSlide].color === "yellow"
-                                                            ? "text-yellow-400"
-                                                            : "text-orange-400"
-                                            }`,
-                                    })}
-                                    <span
-                                        className={`font-semibold text-sm lg:text-base ${slides[currentSlide].color === "purple"
-                                                ? "text-purple-400"
-                                                : slides[currentSlide].color === "blue"
-                                                    ? "text-blue-400"
-                                                    : slides[currentSlide].color === "green"
-                                                        ? "text-green-400"
-                                                        : slides[currentSlide].color === "yellow"
-                                                            ? "text-yellow-400"
-                                                            : "text-orange-400"
-                                            }`}
-                                    >
-                                        {currentSlide + 1} of {slides.length}
-                                    </span>
-                                </div>
+                                    {currentSlide + 1} of {slides.length}
+                                </span>
+                            </div>
+                            <div>
                                 <h2
-                                    className={`text-2xl lg:text-4xl font-bold mb-1 lg:mb-2 ${slides[currentSlide].color === "purple"
-                                            ? "text-purple-400"
-                                            : slides[currentSlide].color === "blue"
-                                                ? "text-blue-400"
-                                                : slides[currentSlide].color === "green"
-                                                    ? "text-green-400"
-                                                    : slides[currentSlide].color === "yellow"
-                                                        ? "text-yellow-400"
-                                                        : "text-orange-400"
+                                    className={`text-xl lg:text-2xl font-bold ${slides[currentSlide].color === "purple"
+                                        ? "text-purple-400"
+                                        : slides[currentSlide].color === "blue"
+                                            ? "text-blue-400"
+                                            : slides[currentSlide].color === "green"
+                                                ? "text-green-400"
+                                                : slides[currentSlide].color === "yellow"
+                                                    ? "text-yellow-400"
+                                                    : "text-orange-400"
                                         }`}
                                 >
                                     {slides[currentSlide].title}
                                 </h2>
-                                <p className="text-sm lg:text-lg text-gray-300">{slides[currentSlide].subtitle}</p>
+                                <p className="text-sm text-gray-400">{slides[currentSlide].subtitle}</p>
                             </div>
                         </div>
-
-                        <div className="flex-1 min-h-0 overflow-y-auto">
-                            <div className="h-full">{renderSlideContent()}</div>
-                        </div>
                     </div>
-                </div>
 
-                {/* Progress Dots */}
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
-                    <div className="bg-slate-800/80 backdrop-blur-sm rounded-full px-4 py-2 border border-slate-700/50">
-                        <div className="flex gap-2">
-                            {slides.map((_, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setCurrentSlide(index)}
-                                    className={`w-2 h-2 lg:w-3 lg:h-3 rounded-full transition-all duration-300 ${index === currentSlide
-                                            ? slides[currentSlide].color === "purple"
-                                                ? "bg-purple-400 scale-125"
-                                                : slides[currentSlide].color === "blue"
-                                                    ? "bg-blue-400 scale-125"
-                                                    : slides[currentSlide].color === "green"
-                                                        ? "bg-green-400 scale-125"
-                                                        : slides[currentSlide].color === "yellow"
-                                                            ? "bg-yellow-400 scale-125"
-                                                            : "bg-orange-400 scale-125"
-                                            : "bg-gray-600 hover:bg-gray-500"
-                                        }`}
-                                />
-                            ))}
+                    <div className="flex-1 min-h-0">
+                        <div className="h-full bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-4">
+                            <div className="h-full overflow-y-auto custom-scrollbar pr-2">
+                                <div className="h-full">{renderSlideContent()}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <style jsx>{`
-        .slider-purple::-webkit-slider-thumb {
-          appearance: none;
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: #a855f7;
-          cursor: pointer;
-          border: 2px solid #7c3aed;
-        }
-        
-        @media (min-width: 768px) {
-          .slider-purple::-webkit-slider-thumb {
-            height: 24px;
-            width: 24px;
-          }
-        }
-        
-        .slider-blue::-webkit-slider-thumb {
-          appearance: none;
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: #60a5fa;
-          cursor: pointer;
-          border: 2px solid #2563eb;
-        }
-        
-        @media (min-width: 768px) {
-          .slider-blue::-webkit-slider-thumb {
-            height: 24px;
-            width: 24px;
-          }
-        }
-        
-        .slider-green::-webkit-slider-thumb {
-          appearance: none;
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: #34d399;
-          cursor: pointer;
-          border: 2px solid #10b981;
-        }
-
-        @media (min-width: 768px) {
-          .slider-green::-webkit-slider-thumb {
-            height: 24px;
-          width: 24px;
-          }
-        }
-
-        .slider-yellow::-webkit-slider-thumb {
-          appearance: none;
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: #fbbf24;
-          cursor: pointer;
-          border: 2px solid #f59e0b;
-        }
-
-        @media (min-width: 768px) {
-          .slider-yellow::-webkit-slider-thumb {
-            height: 24px;
-            width: 24px;
-          }
-        }
-
-        .slider-orange::-webkit-slider-thumb {
-          appearance: none;
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: #fb923c;
-          cursor: pointer;
-          border: 2px solid #ea580c;
-        }
-
-        @media (min-width: 768px) {
-          .slider-orange::-webkit-slider-thumb {
-            height: 24px;
-            width: 24px;
-          }
-        }
-      `}</style>
+            {/* Progress Dots */}
+            <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 z-10">
+                <div className="bg-slate-800/80 backdrop-blur-sm rounded-full px-3 py-1 border border-slate-700/50">
+                    <div className="flex gap-1.5">
+                        {slides.map((_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => setCurrentSlide(index)}
+                                className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentSlide
+                                    ? slides[currentSlide].color === "purple"
+                                        ? "bg-purple-400 scale-125"
+                                        : slides[currentSlide].color === "blue"
+                                            ? "bg-blue-400 scale-125"
+                                            : slides[currentSlide].color === "green"
+                                                ? "bg-green-400 scale-125"
+                                                : slides[currentSlide].color === "yellow"
+                                                    ? "bg-yellow-400 scale-125"
+                                                    : "bg-orange-400 scale-125"
+                                    : "bg-gray-600 hover:bg-gray-500"
+                                    }`}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }
