@@ -383,7 +383,7 @@ export default function TriangleAreaCarousel() {
 
             case 1: // Mini-quiz for basic formula
                 return (
-                    <div className="grid px-20 py-10 lg:grid-cols-2 gap-6 lg:gap-8 h-full">
+                    <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 h-full">
                         <div className="space-y-4 lg:space-y-6">
                             <div
                                 className={`bg-slate-800/60 backdrop-blur-sm rounded-xl p-4 lg:p-6 border border-slate-700/50 transform transition-all duration-700 ${animationStep >= 1 ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
